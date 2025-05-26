@@ -13,5 +13,6 @@ public class SampleController {
     public void hello(Model model) {
         log.info("hello.................");
         model.addAttribute("msg", "HELLO WORLD");
+
     }
 }
