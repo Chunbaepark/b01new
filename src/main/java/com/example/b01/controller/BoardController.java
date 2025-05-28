@@ -1,5 +1,6 @@
 package com.example.b01.controller;
 
+import com.example.b01.domain.Board;
 import com.example.b01.dto.BoardDTO;
 import com.example.b01.dto.PageRequestDTO;
 import com.example.b01.dto.PageResponseDTO;
@@ -47,6 +48,41 @@ public class BoardController {
         log.info(boardDTO);
         Long bno = boardService.register(boardDTO);
         redirectAttributes.addFlashAttribute("result", bno);
+        return "redirect:/board/list";
+    }
+
+    @GetMapping({"/read", "/modify"})
+    public void read(Long bno, PageRequestDTO pageRequestDTO, Model model) {
+        BoardDTO boardDTO = boardService.readOne(bno);
+        log.info(boardDTO);
+        model.addAttribute("dto", boardDTO);
+    }
+
+    @GetMapping("/modify")
+    public String modify(PageRequestDTO pageRequestDTO,
+                         @Valid BoardDTO boardDTO,
+                         BindingResult bindingResult,
+                         RedirectAttributes redirectAttributes) {
+        log.info("board modify post.........." + boardDTO);
+
+        if(bindingResult.hasErrors()) {
+            log.info("has errors.........");
+            String link = pageRequestDTO.getLink();
+            redirectAttributes.addFlashAttribute("errors", bindingResult.getAllErrors());
+            redirectAttributes.addAttribute("bno", boardDTO.getBno());
+            return "redirect:/board/modify?"+link;
+        }
+        boardService.modify(boardDTO);
+        redirectAttributes.addFlashAttribute("result", "modified");
+        redirectAttributes.addAttribute("bno", boardDTO.getBno());
+        return "redirect:/board/read";
+    }
+
+    @GetMapping("/remove")
+    public String remove(Long bno, RedirectAttributes redirectAttributes) {
+        log.info("remove post.. " + bno);
+        boardService.remove(bno);
+        redirectAttributes.addFlashAttribute("result", "removed");
         return "redirect:/board/list";
     }
 
